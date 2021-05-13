@@ -10,12 +10,10 @@ public class ResponseNotFound implements HttpResponsible {
 
     private HttpExchange exchange;
     private HttpStatus status;
-    private String content;
 
     public ResponseNotFound(HttpExchange exchange) {
         this.exchange = exchange;
         this.status = HttpStatus.NOT_FOUND;
-        this.content = this.status.toString();
     }
 
     @Override
