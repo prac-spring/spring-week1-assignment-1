@@ -9,21 +9,21 @@ import com.codesoom.assignment.repository.TaskRepository;
 import com.sun.net.httpserver.HttpExchange;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 public class TaskController implements HttpController{
 
-    private final HttpExchange exchange;
+    private final Pattern pathPattern;
     private final TaskRepository taskRepository;
-    private final TasksRequestParser parser;
 
-    public TaskController(HttpExchange exchange, TaskRepository taskRepository) {
-        this.exchange = exchange;
+    public TaskController(TaskRepository taskRepository) {
+        this.pathPattern = Pattern.compile("^/tasks/[0-9]*$");
         this.taskRepository = taskRepository;
-        this.parser = new TasksRequestParser(exchange);
     }
 
     @Override
-    public void handleRequest() throws IOException {
+    public void handleRequest(HttpExchange exchange) throws IOException {
+        TasksRequestParser parser = new TasksRequestParser(exchange);
         String content = "";
         long id = parser.parseIdInPath();
         HttpMethod method = HttpMethod.valueOf(exchange.getRequestMethod());
@@ -45,5 +45,10 @@ public class TaskController implements HttpController{
             default:
                 break;
         }
+    }
+
+    @Override
+    public boolean isMatchedWith(String path) {
+        return pathPattern.matcher(path).matches();
     }
 }

@@ -12,23 +12,24 @@ import com.sun.net.httpserver.HttpExchange;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.regex.Pattern;
 
 public class TasksController implements HttpController {
 
-    private final HttpExchange exchange;
+    final private Pattern pathPattern;
     private TaskRepository taskRepository;
     private TasksRequestParser parser;
     private ObjectMapper objectMapper;
 
-    public TasksController(HttpExchange exchange, TaskRepository taskRepository) {
-        this.exchange = exchange;
+    public TasksController(TaskRepository taskRepository, ObjectMapper objectMapper) {
+        this.pathPattern = Pattern.compile("^/tasks$");
         this.taskRepository = taskRepository;
-        this.parser = new TasksRequestParser(exchange);
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = objectMapper;
     }
 
     @Override
-    public void handleRequest() throws IOException {
+    public void handleRequest(HttpExchange exchange) throws IOException {
+        TasksRequestParser parser = new TasksRequestParser(exchange);
         String content = "";
         HttpMethod method = HttpMethod.valueOf(exchange.getRequestMethod());
         switch (method) {
@@ -44,6 +45,11 @@ public class TasksController implements HttpController {
             default:
                 break;
         }
+    }
+
+    @Override
+    public boolean isMatchedWith(String path) {
+        return pathPattern.matcher(path).matches();
     }
 
     public String toJson(Object object) throws IOException {
