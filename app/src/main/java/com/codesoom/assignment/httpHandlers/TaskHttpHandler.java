@@ -4,6 +4,9 @@ import com.codesoom.assignment.enums.HttpMethod;
 import com.codesoom.assignment.enums.HttpStatus;
 import com.codesoom.assignment.httpHandlers.datas.HttpResponseData;
 import com.codesoom.assignment.httpHandlers.exceptions.TaskNotFoundException;
+import com.codesoom.assignment.httpHandlers.responses.ResponseBadRequest;
+import com.codesoom.assignment.httpHandlers.responses.ResponseConflict;
+import com.codesoom.assignment.httpHandlers.responses.ResponseNotFound;
 import com.codesoom.assignment.models.Task;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,21 +34,23 @@ public class TaskHttpHandler implements HttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
         URI requestURI = exchange.getRequestURI();
         String path = requestURI.getPath();
-        HttpResponseData response = new HttpResponseData(HttpStatus.OK, "초기화 값");
 
         try {
+            HttpResponseData responseData = new HttpResponseData(HttpStatus.OK, "초기화 값");
+
             if (path.equals("/tasks")) {
-                response = processTasks(exchange);
+                responseData = processTasks(exchange);
             } else if (path.startsWith("/tasks/")) {
-                response = processTask(exchange);
+                responseData = processTask(exchange);
             }
-            sendResponse(exchange, response.getStatus(), response.getContent());
+
+            sendResponse(exchange, responseData.getStatus(), responseData.getContent());
         } catch (TaskNotFoundException e) {
-            sendResponse(exchange, HttpStatus.NOT_FOUND, e.getMessage());
+            new ResponseNotFound(exchange).send(HttpStatus.NOT_FOUND.name());
         } catch (IllegalArgumentException e) {
-            sendResponse(exchange, HttpStatus.BAD_REQUEST, e.getMessage());
+            new ResponseBadRequest(exchange).send(HttpStatus.BAD_REQUEST.name());
         } catch (Exception e) {
-            sendResponse(exchange, HttpStatus.CONFLICT, e.getMessage());
+            new ResponseConflict(exchange).send(HttpStatus.CONFLICT.name());
         }
     }
 
