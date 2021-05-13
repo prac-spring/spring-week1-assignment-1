@@ -1,9 +1,7 @@
 package com.codesoom.assignment.controllers;
 
 import com.codesoom.assignment.enums.HttpMethod;
-import com.codesoom.assignment.enums.HttpStatus;
 import com.codesoom.assignment.httpHandlers.responses.ResponseCreated;
-import com.codesoom.assignment.httpHandlers.responses.ResponseNoContent;
 import com.codesoom.assignment.httpHandlers.responses.ResponseSuccess;
 import com.codesoom.assignment.models.Task;
 import com.codesoom.assignment.parser.TasksRequestParser;
